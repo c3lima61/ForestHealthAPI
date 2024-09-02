@@ -1,59 +1,87 @@
+from flask import Flask, jsonify, request, abort
+from flask_sqlalchemy import SQLAlchemy
+from flask_httpauth import HTTPTokenAuth
+from flask_caching import Cache
+from models import db, ForestData
+from config import Config
+import datetime
+from argon2 import PasswordHasher
+from sqlalchemy.exc import IntegrityError
 
-from flask import Flask, request, jsonify
-from flask_restful import Api, Resource
-import psycopg2
-
+# Initialize Flask app
 app = Flask(__name__)
-api = Api(app)
+app.config.from_object(Config)
 
-#General placeholder for DB connection
-def get_db_connection():
-    conn = psycopg2.connect(
-        host="localhost",
-        database="forest_health",
-        user="your_username",
-        password="your_password"
-    )
-    return conn
+# Initialize extensions
+db.init_app(app)
+auth = HTTPTokenAuth(scheme='Bearer')
+cache = Cache(app)
+ph = PasswordHasher()
 
-#Just using an example endpoint here
-#Adding survey data
-class addSurveyData(Resource):
-    def post(self):
-        data = request.get_json()
-        # connect to the database
-        conn = get_db_connection()
-        cur = conn.cursor()
+# Dummy user token for demonstration
+TOKENS = {
+    "your_token_here": "authorized_user"
+}
 
-        #The actual logic for putting the survey data into the DB
-        try:
-            cur.execute(
-                """
-                INSERT INTO surveys (date, time, location, vegetation_type, burn_severity, recovery_stage)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                """,
-                (
-                    data['date'],
-                    data['time'],
-                    data['location'],
-                    data['vegetation_type'],
-                    data['burn_severity'],
-                    data['recovery_stage']
-                )
+
+# Authentication handler
+@auth.verify_token
+def verify_token(token):
+    if token in TOKENS:
+        return TOKENS[token]
+    return None
+
+
+# Example endpoint 1: Data synchronization (POST)
+@app.route('/sync', methods=['POST'])
+@auth.login_required
+def sync_data():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "Invalid data"}), 400
+
+    try:
+        for entry in data:
+            new_data = ForestData(
+                species=entry['species'],
+                health_status=entry['health_status'],
+                location=entry['location'],
+                timestamp=datetime.datetime.strptime(entry['timestamp'], '%Y-%m-%dT%H:%M:%S')
             )
-            conn.commit()
-            cur.close()
-            conn.close()
-            return jsonify({"message": "Survey data added successfully"}), 201
-        except Exception as e:
-            conn.rollback()
-            cur.close()
-            conn.close()
-            return jsonify({"error": str(e)}), 500
+            db.session.add(new_data)
 
-api.add_resource(addSurveyData, '/addSurveyData')
+        db.session.commit()
+        return jsonify({"message": "Data synchronized successfully"}), 200
+
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"error": "Database integrity error occurred"}), 500
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# Example endpoint 2: Retrieve forest data (GET)
+@app.route('/forest_data', methods=['GET'])
+@auth.login_required
+@cache.cached(timeout=50)
+def get_forest_data():
+    try:
+        forest_data = ForestData.query.all()
+        data = [{
+            "id": entry.id,
+            "species": entry.species,
+            "health_status": entry.health_status,
+            "location": entry.location,
+            "timestamp": entry.timestamp.isoformat()
+        } for entry in forest_data]
+
+        return jsonify(data), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
