@@ -51,6 +51,13 @@ def delete(id):
     except:
         return " There was a problem deleting that task"
 
+# Export route
+@app.route('/export')
+def export():
+    # logic to be added
+    return render_template('export.html')   # placeholder until we figure out best way
+                                            # to test/simulate an example case
+
 
 # setting local host to 50100, use localhost:50100
 if __name__ == '__main__':
