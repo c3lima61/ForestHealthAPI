@@ -1,12 +1,11 @@
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_httpauth import HTTPTokenAuth
 from flask_caching import Cache
-from models import db, ForestData
+from models import db, ForestData, get_sample_counts
 from config import Config
 import datetime
 from argon2 import PasswordHasher
-from sqlalchemy.exc import IntegrityError
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -62,22 +61,29 @@ def sync_data():
         return jsonify({"error": str(e)}), 500
 
 
-# Example endpoint 2: Retrieve forest data (GET)
-@app.route('/forest_data', methods=['GET'])
+# Example endpoint 2: Retrieve sample counts by date range (GET)
+@app.route('/sample_counts', methods=['GET'])
 @auth.login_required
-@cache.cached(timeout=50)
-def get_forest_data():
-    try:
-        forest_data = ForestData.query.all()
-        data = [{
-            "id": entry.id,
-            "species": entry.species,
-            "health_status": entry.health_status,
-            "location": entry.location,
-            "timestamp": entry.timestamp.isoformat()
-        } for entry in forest_data]
+def get_sample_counts_endpoint():
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
 
-        return jsonify(data), 200
+    if not start_date or not end_date:
+        return jsonify({"error": "Missing start_date or end_date parameter"}), 400
+
+    try:
+        # Validate date format
+        start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d')
+
+        results = get_sample_counts(start_date, end_date)
+        formatted_results = [{
+            "Day": row["Day"].isoformat(),
+            "Sample Type": row["Sample Type"],
+            "No. Samples": row["No. Samples"]
+        } for row in results]
+
+        return jsonify(formatted_results), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
