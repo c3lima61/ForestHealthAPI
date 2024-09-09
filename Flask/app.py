@@ -53,6 +53,24 @@ def delete(id):
     except Exception as e:
         return f"There was a problem deleting that task: {e}"
 
+@app.route('/update/<int:id>', methods=['GET', 'POST'])
+# updates current location through html, may need to update later 
+# once a list of observations for location has been made.
+def update(id):
+    task = Todo.query.get_or_404(id)
+
+    if request.method == 'POST':
+        task.content = request.form['content']
+        # commits data to database, then redirects back to home page
+        try:
+            db.session.commit()
+            return redirect('/')
+        except:
+            return 'There was an issue updating your observation'
+    else:
+        return render_template('update.html', task=task)
+    
+
 # Export route, export.html is no longer being rendered
 # So can probably be removed.
 @app.route('/export')
