@@ -1,18 +1,15 @@
-from flask import Flask, render_template, url_for, request, redirect, Response
+from flask import Flask, request, jsonify, Response
 from datetime import datetime
 import csv
 from io import StringIO
-
-#imports sql database
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-#telling app where database is located
+# Telling the app where the database is located
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///test.db'
-db = SQLAlchemy(app)# initialize database with setting from app
+db = SQLAlchemy(app)  # Initialize the database with settings from the app
 app.app_context().push()
-
 
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -23,92 +20,72 @@ class Todo(db.Model):
     def __repr__(self):
         return '<Task %r>' % self.id
 
-#route from server
+# Route from server
 @app.route("/", methods=['POST', 'GET'])
-
-#function end point
 def index():
     if request.method == 'POST':
-        task_content = request.form['content']
+        task_content = request.json['content']  # Get data from the mock mobile app in JSON format
         new_task = Todo(content=task_content)
 
         try:
             db.session.add(new_task)
             db.session.commit()
-            return redirect('/')
+            return jsonify({'message': 'Successfully added task.'}), 201
         except Exception as e:
-            return f"There was an issue adding your task: {e}"
+            return jsonify({'error': f'There was an issue adding the task: {e}'}), 500
     else:
         tasks = Todo.query.order_by(Todo.date_created).all()
-        return render_template('index.html', tasks=tasks)
+        tasks_list = [{"id": task.id, "content": task.content, "completed": task.completed, "date_created": task.date_created} for task in tasks]
+        return jsonify(tasks_list), 200
 
-@app.route('/delete/<int:id>')
+@app.route('/delete/<int:id>', methods=['DELETE'])
 def delete(id):
     task_to_delete = Todo.query.get_or_404(id)
 
     try:
         db.session.delete(task_to_delete)
         db.session.commit()
-        return redirect('/')
+        return jsonify({'message': 'Successfully deleted task.'}), 200
     except Exception as e:
-        return f"There was a problem deleting that task: {e}"
+        return jsonify({'error': f'Problem encounted when deleting task: {e}'}), 500
 
-@app.route('/update/<int:id>', methods=['GET', 'POST'])
-# updates current location through html, may need to update later 
-# once a list of observations for location has been made.
+@app.route('/update/<int:id>', methods=['PUT'])
 def update(id):
     task = Todo.query.get_or_404(id)
+    task.content = request.json['content']  # Get updated content in JSON format
 
-    if request.method == 'POST':
-        task.content = request.form['content']
-        # commits data to database, then redirects back to home page
-        try:
-            db.session.commit()
-            return redirect('/')
-        except:
-            return 'There was an issue updating your observation'
-    else:
-        return render_template('update.html', task=task)
-    
+    try:
+        db.session.commit()
+        return jsonify({'message': 'Successfully updated task.'}), 200
+    except:
+        return jsonify({'error': 'There was an issue updating your observation'}), 500
 
-# Export route, export.html is no longer being rendered
-# So can probably be removed.
-@app.route('/export')
+@app.route('/export', methods=['GET'])
 def export():
     try:
-        # Fetching tasks from the 'mock DB' in order of date.
+        # Fetching tasks from the database
         tasks = Todo.query.order_by(Todo.date_created).all()
 
         if not tasks:
-            return "No tasks available to export." # Will in case of no tasks.
+            return jsonify({'error': 'No tasks available to export'}), 404
 
-        # Below will create a CSV in-memory buffer which we need currently, as we
-        # don't want to create a physical file but still researching if this needs
-        # to be updated when we fetch from the real db.
+        # In-memory CSV creation
         output = StringIO()
-        writer = csv.writer(output) # Writing rows into the output buffer.
-
-        # Writes our header row as well as follows this structure.
+        writer = csv.writer(output)
         writer.writerow(['ID', 'Content', 'Completed', 'Date Created'])
 
-        # I needed help writing this, but I believe this is the correct logic.
-        # Will iterate over each task retrieved, following the header row structure.
+        # Writing task data into CSV structure
         for task in tasks:
             writer.writerow([task.id, task.content, task.completed, task.date_created])
 
-        output.seek(0)  # this will reset the position of the buffer to the beginning.
+        output.seek(0)
 
-        # This will need to be edited when we connect to the actual db.
+        # Returning CSV response
         return Response(output, mimetype="text/csv", headers={"Content-Disposition": "attachment;filename=tasks.csv"})
 
     except Exception as e:
-        # we can probably get rid of this at some point just using it for testing purposes.
-        print(f"Error exporting CSV: {e}")
+        return jsonify({'error': f'An error occurred while exporting the CSV: {e}'}), 500
 
-        # Return a user-friendly error message
-        return f"An error occurred while exporting the CSV: {e}", 500
-
-
-# setting local host to 50100, use localhost:50100
+# Setting local host to 50100, use localhost:50100
 if __name__ == '__main__':
     app.run(port=50100, debug=True)
