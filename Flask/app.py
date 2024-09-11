@@ -4,13 +4,13 @@ import csv
 from io import StringIO
 from flask_sqlalchemy import SQLAlchemy
 
-app = Flask(__name__)
+app = Flask(__name__)   # Create the Flask API application instance
 
-# Telling the app where the database is located
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///test.db'
-db = SQLAlchemy(app)  # Initialize the database with settings from the app
-app.app_context().push()
+app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///test.db' # Telling the app where the database is located
+db = SQLAlchemy(app)  # Initialize the SQLAlchemy extension for database interaction
+app.app_context().push() # Gives context for database access
 
+""" The Todo model for storing tasks in the database """
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(200), nullable=False)
@@ -47,7 +47,7 @@ def delete(id):
         db.session.commit()
         return jsonify({'message': 'Successfully deleted task.'}), 200
     except Exception as e:
-        return jsonify({'error': f'Problem encounted when deleting task: {e}'}), 500
+        return jsonify({'error': f'Problem occurred when deleting task: {e}'}), 500
 
 @app.route('/update/<int:id>', methods=['PUT'])
 def update(id):
