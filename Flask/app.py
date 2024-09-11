@@ -16,13 +16,13 @@ class Todo(db.Model):
     content = db.Column(db.String(200), nullable=False)
     completed = db.Column(db.Integer, default=0)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
-
+    # creates Id for observation
     def __repr__(self):
         return '<Task %r>' % self.id
 
 # Route from server
 @app.route("/", methods=['POST', 'GET'])
-def index():
+def task_manager():
     if request.method == 'POST':
         task_content = request.json['content']  # Get data from the mock mobile app in JSON format
         new_task = Todo(content=task_content)
