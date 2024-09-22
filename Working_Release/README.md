@@ -17,18 +17,22 @@ cd to Forest Health API Prototype folder
 
 ### Step 2: (Create a Virtual Environment)
 python3 -m venv .venv
-source .venv/bin/activate  # On Windows, use .venv\Scripts\activate
+
+source .venv/bin/activate           (On Windows, use .venv\Scripts\activate)
 
 ### Step 3: (Install Dependencies)
 pip install -r requirements.txt
 
 ### Step 4: (Set Up PostgreSQL Database)/
 psql -U postgres                        (Ensure PostgreSQL is installed and running.)
+
 CREATE DATABASE database_prototype;     (Create a PostgreSQL database)
+
 psql -U postgres -d database_prototype -f /path/to/test.sql  (load the schema and data using test.sql)
 
 ### Step 5: (Configure Database Connection)
 (Ensure the config.py file contains the correct PostgreSQL credentials)
+
 SQLALCHEMY_DATABASE_URI = 'postgresql://<username>:<password>@localhost/database_prototype'
 
 ### Step 6: (Run the app)
