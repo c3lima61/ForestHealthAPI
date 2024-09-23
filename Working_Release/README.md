@@ -47,6 +47,23 @@ curl -X POST http://127.0.0.1:50100/locations \
   "compass_direction": 180
 }'
 
-### EXAMPLE EXPORT
+### EXAMPLE GET REQUEST
+
+curl -X GET http://localhost:50100/locations/1
+
+### EXAMPLE PATCH REQUEST
+
+curl -X PATCH http://localhost:50100/locations/1 \
+-H "Content-Type: application/json" \
+-d '{
+    "coordinates": "40.7306, -73.9352",
+    "altitude": 15.7
+}'
+
+### EXAMPLE DELETE REQUEST
+
+curl -X DELETE http://localhost:50100/locations/1
+
+### EXAMPLE EXPORT CSV
 
 curl -X GET http://127.0.0.1:50100/locations/export -o locations.csv
