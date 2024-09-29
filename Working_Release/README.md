@@ -95,9 +95,9 @@ Before you begin, ensure you have the following installed on your local machine:
    ```
 
 5. **Run the SQL file to set up the database schema**:
-   You can run the `prototype_database.sql` file to initialize your tables (replace the file path as needed):
+   You can run the `database_prototype.sql` file to initialize your tables (replace the file path as needed):
    ```bash
-   psql -U username -d database_prototype -f /path/to/the/prototype_database.sql
+   psql -U username -d database_prototype -f /path/to/the/database_prototype.sql
    ```
 
 ## Run the App
