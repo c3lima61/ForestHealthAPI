@@ -116,6 +116,7 @@ Once you have finished installing the dependencies and set up your PostgreSQL da
 #### 1. Create a New Location
 
 - **Description**: Adds a new location to the database.
+- **Path**: http://127.0.0.1:50100/locations
 - **Example Request Body**: 
     ```json
     {
@@ -127,13 +128,16 @@ Once you have finished installing the dependencies and set up your PostgreSQL da
     }
     ```
 
-#### 2. Retrieve Location by ID
+#### 2. Read / Retrieve Location by ID
 
-- **Description**: Retrieves the details of a location by ID.
+- **Description**: Retrieves/reads the details of a location by ID.
+- **Path**: http://127.0.0.1:50100/locations/'location_id'
+- **Request**: Can be done using a GET request.
 
 #### 3. Update a Location by ID
 
 - **Description**: Updates the specified fields of a location.
+- **Path**: http://127.0.0.1:50100/locations/'location_id'
 - **Request Body** (Fields are optional):
     ```json
     {
@@ -148,10 +152,17 @@ Once you have finished installing the dependencies and set up your PostgreSQL da
 #### 4. Delete Location by ID
 
 - **Description**: Deletes a location by its ID.
+- **Path**: http://127.0.0.1:50100/locations/'location_id'
+- **Request**: Can be done using a DELETE request.
 
 #### 5. Export Locations to CSV
 
 - **Description**: Exports all locations from the database to a CSV file.
+- **Path**: http://127.0.0.1:50100/locations/export
+- **Request**: Can be done using a GET request but remember to name your CSV file. Example curl command:
+    ```bash
+   curl -X GET http://127.0.0.1:50100/locations/export -o locations.csv
+   ```
 
 ### Database
 
