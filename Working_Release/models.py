@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy # ORM.
 from sqlalchemy import CheckConstraint  # Used to ensure compass_direction stays within range.
 from datetime import datetime   # Generate timestamps.
-import enum # enum module allows for the definition of enumerations in Python.
+import enum # Enum module allows for the definition of enumerations in Python.
             # Needed to create distinct sets of values for columns.
 
 db = SQLAlchemy()
@@ -15,16 +15,17 @@ class LandscapePositionEnum(enum.Enum):
 
 # Location model reflecting the table structure
 class Location(db.Model):
-    __tablename__ = 'location'
+    __tablename__ = 'location'  # The explicit name of the table
 
-    id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now)
-    coordinates = db.Column(db.String(100), nullable=False)
-    photo = db.Column(db.String(100), nullable=False)
-    landscape_position = db.Column(db.String(100), nullable=False)
-    altitude = db.Column(db.Integer, nullable=True)
-    compass_direction = db.Column(db.Float, nullable=True)
+    id = db.Column(db.Integer, primary_key=True)    # auto-incremented integer
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now)    # Default to current time
+    coordinates = db.Column(db.String(100), nullable=False) # Stores location coord as string
+    photo = db.Column(db.String(100), nullable=False)   # Stores photo URL/path
+    landscape_position = db.Column(db.String(100), nullable=False)  # enum values as strings
+    altitude = db.Column(db.Integer, nullable=True) # Stores altitude
+    compass_direction = db.Column(db.Float, nullable=True)  # Compass direction, float type
 
+    # Constraint to ensure compass values are not negative nor greater than 360 deg
     __table_args__ = (
         CheckConstraint('compass_direction >= 0 AND compass_direction <= 360', name='compassdirection_check'),
     )
