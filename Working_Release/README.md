@@ -1,7 +1,7 @@
 
-# Location Management API
+# The Forest Health Project API Prototype
 
-This project is a Flask-based API that allows for managing location data. It includes functionality to create, retrieve, update, delete, and export locations in CSV format. The project uses PostgreSQL as its database and SQLAlchemy as the ORM.
+This prototype is a Flask-based API that allows for managing location data. It allows the ability to create, retrieve, update, delete, and export locations in CSV format. The prototype uses PostgreSQL as its database and SQLAlchemy as the ORM. Also included is a database prototype SQL dump file to use for testing the API functionality.
 
 ## Table of Contents
 - [Getting Started](#getting-started)
@@ -12,11 +12,10 @@ This project is a Flask-based API that allows for managing location data. It inc
 - [API Endpoints](#api-endpoints)
 - [Database](#database)
 - [Environment Variables](#environment-variables)
-- [License](#license)
 
 ## Getting Started
 
-This API allows you to manage locations with fields such as coordinates, photos, landscape positions, altitudes, and compass directions. It includes routes to create, update, and delete locations, and export data in CSV format.
+This API prototype allows you to manage locations with fields such as coordinates, photos, landscape positions, altitudes, and compass directions. There are routes to create, retrieve, update, and delete locations, and export data in CSV format.
 
 ## Prerequisites
 
@@ -28,13 +27,13 @@ Before you begin, ensure you have the following installed on your local machine:
 
 ## Installation
 
-1. Clone the repository:
+1. Clone the repository // Download the file:
     ```bash
-    git clone https://github.com/your-username/location-management-api.git
-    cd location-management-api
+    git clone """"
+    cd location/of/downloaded/file
     ```
 
-2. Install the required dependencies:
+2. Install the dependencies:
     ```bash
     pip install -r requirements.txt
     ```
@@ -43,7 +42,7 @@ Before you begin, ensure you have the following installed on your local machine:
 
 1. **Install PostgreSQL**:
 
-    Follow the instructions for your operating system:
+    Use the instructions for your OS:
 
     - **Ubuntu / Debian**:
       ```bash
@@ -64,25 +63,25 @@ Before you begin, ensure you have the following installed on your local machine:
       ```bash
       sudo service postgresql start
       ```
-    - On **Windows**, PostgreSQL will automatically start after installation.
+    - On **Windows**, PostgreSQL will automatically start straight after you have finished installing.
 
 3. **Create a PostgreSQL Database**:
-   After starting PostgreSQL, create a new user and database:
+   Once you have started PostgreSQL, create a new user and database:
    - Access the PostgreSQL interactive terminal:
      ```bash
      sudo -u postgres psql
      ```
-   - Create a new database user (replace `yourusername` and `yourpassword`):
+   - Create a new database user (please replace `username` and `password`):
      ```sql
-     CREATE USER yourusername WITH PASSWORD 'yourpassword';
+     CREATE USER username WITH PASSWORD 'password';
      ```
-   - Create a new database (replace `database_prototype` with your desired database name):
+   - Create a new database (please replace `database_prototype` with a name of your choice otherwise you can keep it as is):
      ```sql
      CREATE DATABASE database_prototype;
      ```
    - Grant the user access to the database:
      ```sql
-     GRANT ALL PRIVILEGES ON DATABASE database_prototype TO yourusername;
+     GRANT ALL PRIVILEGES ON DATABASE database_prototype TO username;
      ```
    - Exit PostgreSQL:
      ```bash
@@ -90,20 +89,20 @@ Before you begin, ensure you have the following installed on your local machine:
      ```
 
 4. **Update the Connection String**:
-   In `config.py`, update the `SQLALCHEMY_DATABASE_URI` with the correct username, password, and database name:
+   In `config.py`, ensure to update the `SQLALCHEMY_DATABASE_URI` with the correct username, password, and database name:
    ```python
-   SQLALCHEMY_DATABASE_URI = 'postgresql://yourusername:yourpassword@localhost/database_prototype'
+   SQLALCHEMY_DATABASE_URI = 'postgresql://username:password@localhost/database_prototype'
    ```
 
 5. **Run the SQL file to set up the database schema**:
    You can run the `prototype_database.sql` file to initialize your tables (replace the file path as needed):
    ```bash
-   psql -U yourusername -d database_prototype -f /path/to/prototype_database.sql
+   psql -U username -d database_prototype -f /path/to/the/prototype_database.sql
    ```
 
-## Running the App
+## Run the App
 
-Once you've installed the dependencies and set up your PostgreSQL database, you can run the application.
+Once you have finished installing the dependencies and set up your PostgreSQL database, you can now run the application.
 
 1. Start the Flask app:
     ```bash
@@ -115,10 +114,9 @@ Once you've installed the dependencies and set up your PostgreSQL database, you 
 ### API Endpoints
 
 #### 1. Create a New Location
-- **URL**: `/locations`
-- **Method**: `POST`
+
 - **Description**: Adds a new location to the database.
-- **Request Body**:
+- **Example Request Body**: 
     ```json
     {
         "coordinates": "string",
@@ -128,21 +126,13 @@ Once you've installed the dependencies and set up your PostgreSQL database, you 
         "compass_direction": "float"
     }
     ```
-- **Response**:
-    - Success: `201 Created`
-    - Error: `400 Bad Request`
 
 #### 2. Retrieve Location by ID
-- **URL**: `/locations/<int:id>`
-- **Method**: `GET`
-- **Description**: Retrieves the details of a location by its ID.
-- **Response**:
-    - Success: `200 OK`
-    - Error: `404 Not Found`
+
+- **Description**: Retrieves the details of a location by ID.
 
 #### 3. Update a Location by ID
-- **URL**: `/locations/<int:id>`
-- **Method**: `PATCH`
+
 - **Description**: Updates the specified fields of a location.
 - **Request Body** (Fields are optional):
     ```json
@@ -154,27 +144,18 @@ Once you've installed the dependencies and set up your PostgreSQL database, you 
         "compass_direction": "float"
     }
     ```
-- **Response**:
-    - Success: `200 OK`
-    - Error: `400 Bad Request`
 
 #### 4. Delete Location by ID
-- **URL**: `/locations/<int:id>`
-- **Method**: `DELETE`
+
 - **Description**: Deletes a location by its ID.
-- **Response**:
-    - Success: `200 OK`
-    - Error: `404 Not Found`
 
 #### 5. Export Locations to CSV
-- **URL**: `/locations/export`
-- **Method**: `GET`
+
 - **Description**: Exports all locations from the database to a CSV file.
-- **Response**: The response will be a downloadable CSV file.
 
 ### Database
 
-The database schema is defined in `models.py` using SQLAlchemy. The main table used is `location`, which stores the following fields:
+The database schema is defined in `models.py` using SQLAlchemy. The table being used is `location`, which stores the following fields:
 - `id`: Primary key
 - `timestamp`: Auto-generated timestamp
 - `coordinates`: A string representing the coordinates of the location
@@ -183,7 +164,7 @@ The database schema is defined in `models.py` using SQLAlchemy. The main table u
 - `altitude`: Optional integer value
 - `compass_direction`: Optional float, validated between 0 and 360 degrees
 
-To initialize the database, Flask automatically creates the table structures when the app is run.
+Flask will initialize the database when run / create the tables when run.
 
 ### Environment Variables
 
@@ -192,10 +173,4 @@ To store sensitive information like the `SECRET_KEY`, you can use a `.env` file 
 - `SECRET_KEY`: Used for securing the Flask session
 - `SQLALCHEMY_DATABASE_URI`: The database connection string (defined in `config.py`)
 
-### License
 
-This project is licensed under the MIT License.
-
----
-
-This update adds PostgreSQL installation instructions and more detailed steps for setting up the database. Let me know if you'd like any further adjustments!
