@@ -20,7 +20,7 @@ This API prototype allows you to manage locations with fields such as coordinate
 ## Prerequisites
 
 Before you begin, ensure you have the following installed on your local machine:
-- Python 3.8+
+- Python 3.x
 - PostgreSQL
 - Flask
 - SQLAlchemy
