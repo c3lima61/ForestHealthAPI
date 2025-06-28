@@ -3,7 +3,7 @@
 
 This prototype is a Flask-based API that allows for managing location data. It allows the ability to create, retrieve, update, delete, and export locations in CSV format. The prototype uses PostgreSQL as its database and SQLAlchemy as the ORM. Also included is a database prototype SQL dump file to use for testing the API functionality.
 
-NOTE: This is not intended for production use, and no longer maintained. Sensitive credentials shown are generic and do not reflect any real systems.
+NOTE: This is a university project not intended for production use, and no longer maintained. Sensitive credentials shown are generic and do not reflect any real systems.
 
 ## Table of Contents
 - [Getting Started](#getting-started)
